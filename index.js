@@ -1,3 +1,10 @@
+const io = require('@pm2/io')
+
+io.init({
+    transactions: true,
+    http: true
+});
+
 const URL_LIST = 'https://fevgames.net/ifs/events/';
 
 const { Telegraf } = require('telegraf');
@@ -11,6 +18,9 @@ const getDefualtInlineKeyboard = require('./utils/getDefualtInlineKeyboard');
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.start(ctx => {
+    console.log('start');
+
+    console.log('reply');
     ctx.reply(
         capitalize(getLanguage(ctx.update.message.from.language_code, 'clickOnButton')),
         {
@@ -27,6 +37,7 @@ bot.start(ctx => {
         }
     );
 
+    console.log('reply');
     ctx.reply(
         `${capitalize(getLanguage(ctx.update.message.from.language_code, 'sendMeYourLocation'))}`,
         {
@@ -46,9 +57,12 @@ bot.start(ctx => {
 });
 
 bot.on('location', async ctx => {
+    console.log('location');
+
     let messageId;
     let chatId;
 
+    console.log('reply');
     ctx.reply(
         `${capitalize(getLanguage(ctx.update.message.from.language_code, 'gettingInformation'))}...`,
         {
@@ -66,6 +80,7 @@ bot.on('location', async ctx => {
         ctx.update.message.location.longitude
     ))[0];
 
+    console.log('editMessageText');
     ctx.telegram.editMessageText(
         chatId,
         messageId,
@@ -85,6 +100,8 @@ bot.on('location', async ctx => {
 });
 
 bot.on('inline_query', async ctx => {
+    console.log('inline_query');
+
     let result = [];
 
     if(typeof(ctx.update.inline_query.location) == 'object') {
@@ -146,12 +163,16 @@ bot.on('inline_query', async ctx => {
         );
     }
 
+    console.log('answerInlineQuery');
     ctx.answerInlineQuery(result, {
         is_personal: true
     });
 });
 
 bot.on('callback_query', ctx => {
+    console.log('callback_query');
+
+    console.log('answerCbQuery');
     ctx.answerCbQuery(
         '',
         {
@@ -160,8 +181,16 @@ bot.on('callback_query', ctx => {
     );
 });
 
+console.log('launch');
 bot.launch()
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'))
-process.once('SIGTERM', () => bot.stop('SIGTERM'))
+process.once('SIGINT', () => {
+    console.log('stop SIGINT');
+    bot.stop('SIGINT');
+});
+
+process.once('SIGTERM', () => {
+    console.log('stop SIGTERM');
+    bot.stop('SIGTERM');
+});
