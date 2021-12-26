@@ -38,18 +38,20 @@ module.exports = async (urlList, latitude, longitude) => {
             if(field == 'city') {
                 record[field] = dom[i].children[fields[field].index].children[0].children[0].data;
                 record.eventLink = urlList + dom[i].children[fields[field].index].children[0].attribs.href;
+                record.id = record.eventLink.substring(record.eventLink.lastIndexOf('=') + 1);
             } else if(field == 'portal') {
                 record[field] = {
-                    name: dom[i].children[fields[field].index].children[0].children[0].data
+                    name: dom[i].children[fields[field].index].children[0].children[0].data,
+                    link: dom[i].children[fields[field].index].children[0].attribs.href
                 };
 
                 let index = {
-                    pll: dom[i].children[fields[field].index].children[0].attribs.href.lastIndexOf('pll=') + 4
+                    pll: record[field].link.lastIndexOf('pll=') + 4
                 };
 
-                index['&'] = dom[i].children[fields[field].index].children[0].attribs.href.indexOf('&', index.pll);
+                index['&'] = record[field].link.indexOf('&', index.pll);
 
-                let coordinates = dom[i].children[fields[field].index].children[0].attribs.href.substring(
+                let coordinates = record[field].link.substring(
                     index.pll,
                     index['&'] == -1 ? Infinity : index['&']
                 ).split(',');
