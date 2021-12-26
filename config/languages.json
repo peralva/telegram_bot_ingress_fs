@@ -1,0 +1,22 @@
+{
+    "en": {
+        "eventChannel": "event channel",
+        "eventDetails": "event details",
+        "gettingInformation": "getting information",
+        "sendMeYourLocation": "send me your location and I'll get back to you with the closest IFS data.\r\n\r\nYou can also click on the button below for me to list the 50 closest events according to the filter.",
+        "locationPermission": "to use this feature, you need to allow the telegram to access your device's location."
+    },
+    "pt-br": {
+        "city": "cidade",
+        "distance": "distancia",
+        "eventChannel": "canal do evento",
+        "language": "idioma",
+        "time": "hora",
+        "eventDetails": "detalhes do evento",
+        "source": "fonte",
+        "gettingInformation": "obtendo informacoes",
+        "sendMeYourLocation": "envie-me sua localizacao e eu te retornarei com os dados do IFS mais proximo.\r\n\r\nVoce tambem pode clicar no botao abaixo para eu listar os 50 eventos mais proximos de acordo com o filtro.",
+        "list": "listar",
+        "locationPermission": "para usar este recurso, e necessario permitir que o telegram acesse a localizacao do seu dispositivo."
+    }
+}

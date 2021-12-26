@@ -1,0 +1,22 @@
+{
+  "name": "telegram_bot_ingress_fs",
+  "version": "1.0.0",
+  "description": "Telegram Bot - Ingress First Satuday",
+  "main": "index.js",
+  "scripts": {
+    "test": "run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peralva/telegram_bot_ingress_fs.git"
+  },
+  "author": "brunoperalva@hotmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/peralva/telegram_bot_ingress_fs/issues"
+  },
+  "homepage": "https://github.com/peralva/telegram_bot_ingress_fs#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.10"
+  }
+}
