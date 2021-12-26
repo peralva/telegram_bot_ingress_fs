@@ -50,7 +50,7 @@ bot.on('location', async ctx => {
         chatId,
         messageId,
         '',
-        getMessageText(language_code, data, URL_LIST),
+        getMessageText(ctx.update.message.from.language_code, data, URL_LIST),
         {
             parse_mode: 'HTML'
         }
