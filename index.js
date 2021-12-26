@@ -6,24 +6,44 @@ const capitalize = require('./utils/capitalize');
 const getLanguage = require('./utils/getLanguage');
 const getDataFevGames = require('./utils/getDataFevGames');
 const getMessageText = require('./utils/getMessageText');
+const getDefualtInlineKeyboard = require('./utils/getDefualtInlineKeyboard');
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
-bot.start(ctx => ctx.reply(
-    capitalize(getLanguage(ctx.update.message.from.language_code, 'sendMeYourLocation')),
-    {
-        reply_markup: {
-            inline_keyboard: [
-                [
-                    {
-                        text: capitalize(getLanguage(ctx.update.message.from.language_code, 'list')),
-                        switch_inline_query_current_chat: ''
-                    }
+bot.start(ctx => {
+    ctx.reply(
+        capitalize(getLanguage(ctx.update.message.from.language_code, 'clickOnButton')),
+        {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        {
+                            text: capitalize(getLanguage(ctx.update.message.from.language_code, 'list')),
+                            switch_inline_query_current_chat: ''
+                        }
+                    ]
                 ]
-            ]
+            }
         }
-    }
-));
+    );
+
+    ctx.reply(
+        `${capitalize(getLanguage(ctx.update.message.from.language_code, 'sendMeYourLocation'))}`,
+        {
+            reply_markup: {
+                resize_keyboard: true,
+                keyboard: [
+                    [
+                        {
+                            text: capitalize(getLanguage(ctx.update.message.from.language_code, 'sendLocation')),
+                            request_location: true
+                        }
+                    ]
+                ]
+            }
+        }
+    );
+});
 
 bot.on('location', async ctx => {
     let messageId;
@@ -52,7 +72,14 @@ bot.on('location', async ctx => {
         '',
         getMessageText(ctx.update.message.from.language_code, data, URL_LIST),
         {
-            parse_mode: 'HTML'
+            parse_mode: 'HTML',
+            reply_markup: {
+                inline_keyboard: getDefualtInlineKeyboard(
+                    ctx.update.message.from.language_code,
+                    data.id,
+                    ctx.botInfo.id
+                )
+            }
         }
     );
 });
@@ -72,22 +99,38 @@ bot.on('inline_query', async ctx => {
                 || element.city         .toLowerCase()  .includes(ctx.update.inline_query.query.toLowerCase()   )
                 || element.portal.name  .toLowerCase()  .includes(ctx.update.inline_query.query.toLowerCase()   )
                 || element.language     .toLowerCase()  .includes(ctx.update.inline_query.query.toLowerCase()   )
+                || element.id                           .includes(ctx.update.inline_query.query                 )
                 || element.time                         .includes(ctx.update.inline_query.query                 )
             );
         }
 
         data = data.filter((element, index) => index < 50);
 
-        data.forEach(element => result.push({
-            type: 'article',
-            id: element.eventLink.substring(element.eventLink.lastIndexOf('=') + 1),
-            title: element.city,
-            description: element.portal.distance.toFixed(3).replace('.', ',') + ' KM',
-            input_message_content: {
-                message_text: getMessageText(ctx.update.inline_query.from.language_code, element, URL_LIST),
-                parse_mode: 'HTML'
-            }
-        }));
+        data.forEach(element => {
+            let inlineKeyboard = getDefualtInlineKeyboard(
+                ctx.update.inline_query.from.language_code,
+                element.id
+            );
+
+            inlineKeyboard[0].push({
+                text: 'Bot',
+                callback_data: ' '
+            });
+
+            result.push({
+                type: 'article',
+                id: String(element.id),
+                title: element.city,
+                description: element.portal.distance.toFixed(3).replace('.', ',') + ' KM',
+                input_message_content: {
+                    message_text: getMessageText(ctx.update.inline_query.from.language_code, element, URL_LIST),
+                    parse_mode: 'HTML'
+                },
+                reply_markup: {
+                    inline_keyboard: inlineKeyboard
+                }
+            });
+        });
     } else {
         result.push(
             {
@@ -104,8 +147,17 @@ bot.on('inline_query', async ctx => {
     }
 
     ctx.answerInlineQuery(result, {
-        cache_time: 10
+        is_personal: true
     });
+});
+
+bot.on('callback_query', ctx => {
+    ctx.answerCbQuery(
+        '',
+        {
+            url: 'https://t.me/IngressFSBot?start=start'
+        }
+    );
 });
 
 bot.launch()
