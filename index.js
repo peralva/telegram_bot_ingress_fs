@@ -14,13 +14,15 @@ const getLanguage = require('./utils/getLanguage');
 const getDataFevGames = require('./utils/getDataFevGames');
 const getMessageText = require('./utils/getMessageText');
 const getDefualtInlineKeyboard = require('./utils/getDefualtInlineKeyboard');
+const sendLog = require('./utils/sendLog');
+
+let logs = {};
 
 const bot = new Telegraf(process.env.BOT_TOKEN)
 
 bot.start(ctx => {
-    console.log('start');
+    sendLog('start', logs, bot.telegram, ctx.update.message.from.id);
 
-    console.log('reply');
     ctx.reply(
         capitalize(getLanguage(ctx.update.message.from.language_code, 'clickOnButton')),
         {
@@ -35,9 +37,10 @@ bot.start(ctx => {
                 ]
             }
         }
-    );
+    ).then(() => {
+        sendLog('reply', logs, bot.telegram, ctx.update.message.from.id);
+    });
 
-    console.log('reply');
     ctx.reply(
         `${capitalize(getLanguage(ctx.update.message.from.language_code, 'sendMeYourLocation'))}`,
         {
@@ -53,16 +56,17 @@ bot.start(ctx => {
                 ]
             }
         }
-    );
+    ).then(() => {
+        sendLog('reply', logs, bot.telegram, ctx.update.message.from.id);
+    });
 });
 
 bot.on('location', async ctx => {
-    console.log('location');
+    sendLog('location', logs, bot.telegram, ctx.update.message.from.id);
 
     let messageId;
     let chatId;
 
-    console.log('reply');
     ctx.reply(
         `${capitalize(getLanguage(ctx.update.message.from.language_code, 'gettingInformation'))}...`,
         {
@@ -72,21 +76,21 @@ bot.on('location', async ctx => {
     ).then(result => {
         messageId = result.message_id;
         chatId = result.chat.id;
+
+        sendLog('reply', logs, bot.telegram, ctx.update.message.from.id);
     });
 
-    let data = (await getDataFevGames(
+    let data = await getDataFevGames(
         URL_LIST,
         ctx.update.message.location.latitude,
         ctx.update.message.location.longitude
-    ))[0];
+    );
 
-    console.log('editMessageText');
-    ctx.telegram.editMessageText(
-        chatId,
-        messageId,
-        '',
-        getMessageText(ctx.update.message.from.language_code, data, URL_LIST),
-        {
+    if(data.length > 0) {
+        data = data[0];
+
+        var messageText = getMessageText(ctx.update.message.from.language_code, data, URL_LIST);
+        var extra = {
             parse_mode: 'HTML',
             reply_markup: {
                 inline_keyboard: getDefualtInlineKeyboard(
@@ -95,12 +99,19 @@ bot.on('location', async ctx => {
                     ctx.botInfo.id
                 )
             }
-        }
-    );
+        };
+    } else {
+        var messageText = capitalize(getLanguage(ctx.update.message.from.language_code, 'noRecords'));
+        var extra = {};
+    }
+
+    ctx.telegram.editMessageText(chatId, messageId, '', messageText, extra).then(() => {
+        sendLog('editMessageText', logs, bot.telegram, ctx.update.message.from.id);
+    });
 });
 
 bot.on('inline_query', async ctx => {
-    console.log('inline_query');
+    sendLog('inline_query', logs, bot.telegram, ctx.update.inline_query.from.id);
 
     let result = [];
 
@@ -163,34 +174,44 @@ bot.on('inline_query', async ctx => {
         );
     }
 
-    console.log('answerInlineQuery');
     ctx.answerInlineQuery(result, {
         is_personal: true
+    }).then(() => {
+        sendLog('answerInlineQuery', logs, bot.telegram, ctx.update.inline_query.from.id);
     });
 });
 
 bot.on('callback_query', ctx => {
-    console.log('callback_query');
+    sendLog('callback_query', logs, bot.telegram, ctx.update.callback_query.from.id);
 
-    console.log('answerCbQuery');
     ctx.answerCbQuery(
         '',
         {
             url: 'https://t.me/IngressFSBot?start=start'
         }
-    );
+    ).then(() => {
+        sendLog('answerCbQuery', logs, bot.telegram, ctx.update.callback_query.from.id);
+    });
 });
 
-console.log('launch');
+bot.command('rotate', ctx => {
+    sendLog('rotate', logs, bot.telegram, ctx.update.message.from.id);
+
+    if(ctx.update.message.from.id == 124127197) {
+        logs = {};
+    }
+});
+
 bot.launch()
+sendLog('launch', logs, bot.telegram);
 
 // Enable graceful stop
 process.once('SIGINT', () => {
-    console.log('stop SIGINT');
+    sendLog('stop SIGINT', logs, bot.telegram);
     bot.stop('SIGINT');
 });
 
 process.once('SIGTERM', () => {
-    console.log('stop SIGTERM');
+    sendLog('stop SIGTERM', logs, bot.telegram);
     bot.stop('SIGTERM');
 });
