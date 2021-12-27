@@ -7,7 +7,7 @@ module.exports = (log, logs, telegram, chatId) => {
         milliseconds = '0' + milliseconds;
     }
 
-    log = `${startTime.toLocaleTimeString()}.${milliseconds} ${typeof(chatId) != 'number' || chatId != 124127197 ? '000000000' : chatId} ${log}`;
+    log = `${startTime.toLocaleTimeString()} ${milliseconds} ${typeof(chatId) != 'number' || chatId != 124127197 ? '000000000' : chatId} ${log}`;
 
     console.log(log);
 
