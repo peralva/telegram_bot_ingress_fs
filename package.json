@@ -1,7 +1,7 @@
 {
   "name": "telegram_bot_ingress_fs",
   "version": "1.0.0",
-  "description": "Telegram Bot - Ingress First Satuday",
+  "description": "Telegram Bot - Ingress First Saturday/Sunday",
   "main": "index.js",
   "scripts": {
     "test": "run"
