@@ -9,6 +9,8 @@ const URL_LIST = 'https://fevgames.net/ifs/events/';
 
 const { Telegraf } = require('telegraf');
 
+const { token } = require('./config/general.json');
+
 const capitalize = require('./utils/capitalize');
 const getLanguage = require('./utils/getLanguage');
 const getDataFevGames = require('./utils/getDataFevGames');
@@ -18,7 +20,7 @@ const sendLog = require('./utils/sendLog');
 
 let logs = {};
 
-const bot = new Telegraf(process.env.BOT_TOKEN)
+const bot = new Telegraf(token)
 
 bot.start(ctx => {
     sendLog('start', logs, bot.telegram, ctx.update.message.from.id);
@@ -26,6 +28,7 @@ bot.start(ctx => {
     ctx.reply(
         capitalize(getLanguage(ctx.update.message.from.language_code, 'clickOnButton')),
         {
+            reply_to_message_id: ctx.update.message.message_id,
             reply_markup: {
                 inline_keyboard: [
                     [
@@ -44,6 +47,7 @@ bot.start(ctx => {
     ctx.reply(
         `${capitalize(getLanguage(ctx.update.message.from.language_code, 'sendMeYourLocation'))}`,
         {
+            reply_to_message_id: ctx.update.message.message_id,
             reply_markup: {
                 resize_keyboard: true,
                 keyboard: [
@@ -70,7 +74,6 @@ bot.on('location', async ctx => {
     ctx.reply(
         `${capitalize(getLanguage(ctx.update.message.from.language_code, 'gettingInformation'))}...`,
         {
-            parse_mode: 'HTML',
             reply_to_message_id: ctx.update.message.message_id
         }
     ).then(result => {
@@ -199,6 +202,15 @@ bot.command('rotate', ctx => {
 
     if(ctx.update.message.from.id == 124127197) {
         logs = {};
+
+        ctx.reply(
+            JSON.stringify(ctx.update, null, '    '),
+            {
+                reply_to_message_id: ctx.update.message.message_id
+            }
+        ).then(() => {
+            sendLog('reply', logs, bot.telegram, ctx.update.message.from.id);
+        });
     }
 });
 
