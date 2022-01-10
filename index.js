@@ -1,27 +1,26 @@
-module.exports = bot => {
-    const URL_LIST = 'https://fevgames.net/ifs/events/';
+const URL_LIST = 'https://fevgames.net/ifs/events/';
 
-    const capitalize = require('./utils/capitalize');
-    const getLanguage = require('./utils/getLanguage');
-    const getDataFevGames = require('./utils/getDataFevGames');
-    const getMessageText = require('./utils/getMessageText');
-    const getDefualtInlineKeyboard = require('./utils/getDefualtInlineKeyboard');
-    const sendLog = require('./utils/sendLog');
+const translateText = require('../../utils/translateText');
+const getDataFevGames = require('./utils/getDataFevGames');
+const getMessageText = require('./utils/getMessageText');
+const getDefualtInlineKeyboard = require('./utils/getDefualtInlineKeyboard');
+const sendLog = require('./utils/sendLog');
 
+const index = bot => {
     bot.logs = {};
 
     bot.start(ctx => {
         sendLog('start', bot.logs, bot.telegram, ctx.update.message.from.id);
 
         ctx.reply(
-            capitalize(getLanguage(ctx.update.message.from.language_code, 'clickOnButton')),
+            `${translateText({language: ctx.update.message.from.language_code, text: 'Click the button below to search the 50 closest events according to the filter (location permission required)'})}.`,
             {
                 reply_to_message_id: ctx.update.message.message_id,
                 reply_markup: {
                     inline_keyboard: [
                         [
                             {
-                                text: capitalize(getLanguage(ctx.update.message.from.language_code, 'list')),
+                                text: translateText({language: ctx.update.message.from.language_code, text: 'List'}),
                                 switch_inline_query_current_chat: ''
                             }
                         ]
@@ -33,7 +32,7 @@ module.exports = bot => {
         });
 
         ctx.reply(
-            `${capitalize(getLanguage(ctx.update.message.from.language_code, 'sendMeYourLocation'))}`,
+            `${translateText({language: ctx.update.message.from.language_code, text: 'Submit your location and the closest IFS data will be returned'})}.`,
             {
                 reply_to_message_id: ctx.update.message.message_id,
                 reply_markup: {
@@ -41,7 +40,7 @@ module.exports = bot => {
                     keyboard: [
                         [
                             {
-                                text: capitalize(getLanguage(ctx.update.message.from.language_code, 'sendLocation')),
+                                text: translateText({language: ctx.update.message.from.language_code, text: 'Send Location'}),
                                 request_location: true
                             }
                         ]
@@ -60,7 +59,7 @@ module.exports = bot => {
         let chatId;
 
         ctx.reply(
-            `${capitalize(getLanguage(ctx.update.message.from.language_code, 'gettingInformation'))}...`,
+            `${translateText({language: ctx.update.message.from.language_code, text: 'Getting information'})}...`,
             {
                 reply_to_message_id: ctx.update.message.message_id
             }
@@ -92,7 +91,7 @@ module.exports = bot => {
                 }
             };
         } else {
-            var messageText = capitalize(getLanguage(ctx.update.message.from.language_code, 'noRecords'));
+            var messageText = translateText({language: ctx.update.message.from.language_code, text: 'No records'});
             var extra = {};
         }
 
@@ -156,9 +155,9 @@ module.exports = bot => {
                     type: 'article',
                     id: '0',
                     title: ' ',
-                    description: capitalize(getLanguage(ctx.update.inline_query.from.language_code, 'locationPermission')),
+                    description: translateText({language: ctx.update.inline_query.from.language_code, text: "To use this feature, you need to allow the Telegram to access your device's location"}),
                     input_message_content: {
-                        message_text: `<b>${capitalize(getLanguage(ctx.update.inline_query.from.language_code, 'locationPermission'))}</b>`,
+                        message_text: `<b>${translateText({language: ctx.update.inline_query.from.language_code, text: "To use this feature, you need to allow the Telegram to access your device's location"})}</b>`,
                         parse_mode: 'HTML'
                     }
                 }
@@ -178,7 +177,7 @@ module.exports = bot => {
         ctx.answerCbQuery(
             '',
             {
-                url: 'https://t.me/IngressFSBot?start=start'
+                url: 't.me/IngressFSBot?start=start'
             }
         ).then(() => {
             sendLog('answerCbQuery', bot.logs, bot.telegram, ctx.update.callback_query.from.id);
@@ -201,4 +200,20 @@ module.exports = bot => {
             });
         }
     });
+}
+
+module.exports = index;
+
+if(process.env.NODE_ENV == 'developer') {
+    const { Telegraf } = require('telegraf');
+
+    let token = process.cwd();
+    token = token.substring(token.length, token.length - 45).replace('_', ':');
+
+    const bot = new Telegraf(token);
+
+    index(bot);
+
+    bot.launch();
+    console.log('Bot launched.');
 }

@@ -1,15 +1,14 @@
-const capitalize = require("./capitalize");
-const getLanguage = require("./getLanguage");
+const translateText = require("../../../utils/translateText");
 
-module.exports = (languageCode, eventId) => {
+module.exports = (language, eventId) => {
     return([
         [
             {
-                text: capitalize(getLanguage(languageCode, 'share')),
+                text: translateText({language, text: 'Share'}),
                 switch_inline_query: eventId
             },
             {
-                text: capitalize(getLanguage(languageCode, 'list')),
+                text: translateText({language, text: 'List'}),
                 switch_inline_query_current_chat: ''
             }
         ]

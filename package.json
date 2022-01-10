@@ -4,7 +4,7 @@
   "description": "Telegram Bot - Ingress First Saturday/Sunday",
   "main": "index.js",
   "scripts": {
-    "test": "nodemon"
+    "test": "START \"\" nodemon --trace-warnings"
   },
   "repository": {
     "type": "git",
@@ -17,8 +17,6 @@
   },
   "homepage": "https://github.com/peralva/telegram_bot_ingress_fs#readme",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.10",
-    "pm2": "^5.1.2",
-    "telegraf": "^4.5.2"
+    "cheerio": "^1.0.0-rc.10"
   }
 }
