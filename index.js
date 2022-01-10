@@ -4,14 +4,9 @@ const translateText = require('../../utils/translateText');
 const getDataFevGames = require('./utils/getDataFevGames');
 const getMessageText = require('./utils/getMessageText');
 const getDefualtInlineKeyboard = require('./utils/getDefualtInlineKeyboard');
-const sendLog = require('./utils/sendLog');
 
 const index = bot => {
-    bot.logs = {};
-
     bot.start(ctx => {
-        sendLog('start', bot.logs, bot.telegram, ctx.update.message.from.id);
-
         ctx.reply(
             `${translateText({language: ctx.update.message.from.language_code, text: 'Click the button below to search the 50 closest events according to the filter (location permission required)'})}.`,
             {
@@ -27,9 +22,7 @@ const index = bot => {
                     ]
                 }
             }
-        ).then(() => {
-            sendLog('reply', bot.logs, bot.telegram, ctx.update.message.from.id);
-        });
+        );
 
         ctx.reply(
             `${translateText({language: ctx.update.message.from.language_code, text: 'Submit your location and the closest IFS data will be returned'})}.`,
@@ -47,14 +40,10 @@ const index = bot => {
                     ]
                 }
             }
-        ).then(() => {
-            sendLog('reply', bot.logs, bot.telegram, ctx.update.message.from.id);
-        });
+        );
     });
 
     bot.on('location', async ctx => {
-        sendLog('location', bot.logs, bot.telegram, ctx.update.message.from.id);
-
         let messageId;
         let chatId;
 
@@ -66,8 +55,6 @@ const index = bot => {
         ).then(result => {
             messageId = result.message_id;
             chatId = result.chat.id;
-
-            sendLog('reply', bot.logs, bot.telegram, ctx.update.message.from.id);
         });
 
         let data = await getDataFevGames(
@@ -95,14 +82,10 @@ const index = bot => {
             var extra = {};
         }
 
-        ctx.telegram.editMessageText(chatId, messageId, '', messageText, extra).then(() => {
-            sendLog('editMessageText', bot.logs, bot.telegram, ctx.update.message.from.id);
-        });
+        ctx.telegram.editMessageText(chatId, messageId, '', messageText, extra);
     });
 
     bot.on('inline_query', async ctx => {
-        sendLog('inline_query', bot.logs, bot.telegram, ctx.update.inline_query.from.id);
-
         let result = [];
 
         if(typeof(ctx.update.inline_query.location) == 'object') {
@@ -166,39 +149,16 @@ const index = bot => {
 
         ctx.answerInlineQuery(result, {
             is_personal: true
-        }).then(() => {
-            sendLog('answerInlineQuery', bot.logs, bot.telegram, ctx.update.inline_query.from.id);
         });
     });
 
     bot.on('callback_query', ctx => {
-        sendLog('callback_query', bot.logs, bot.telegram, ctx.update.callback_query.from.id);
-
         ctx.answerCbQuery(
             '',
             {
                 url: 't.me/IngressFSBot?start=start'
             }
-        ).then(() => {
-            sendLog('answerCbQuery', bot.logs, bot.telegram, ctx.update.callback_query.from.id);
-        });
-    });
-
-    bot.command('rotate', ctx => {
-        sendLog('rotate', bot.logs, bot.telegram, ctx.update.message.from.id);
-
-        if(ctx.update.message.from.id == 124127197) {
-            bot.logs = {};
-
-            ctx.reply(
-                JSON.stringify(ctx.update, null, '    '),
-                {
-                    reply_to_message_id: ctx.update.message.message_id
-                }
-            ).then(() => {
-                sendLog('reply', bot.logs, bot.telegram, ctx.update.message.from.id);
-            });
-        }
+        );
     });
 }
 
