@@ -4,7 +4,7 @@
   "description": "Telegram Bot - Ingress First Saturday/Sunday",
   "main": "index.js",
   "scripts": {
-    "test": "START \"\" nodemon --trace-warnings"
+    "test": "START \"Bot\" nodemon --trace-warnings"
   },
   "repository": {
     "type": "git",

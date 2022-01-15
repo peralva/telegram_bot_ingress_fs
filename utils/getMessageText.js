@@ -8,7 +8,7 @@ module.exports = (language, data, urlList) => {
 <b>${translateText({language, text: 'Time'})}:</b> ${data.time} (${data.timeZone})
 ${data.eventChannel != '' ? `<b>${translateText({language, text: 'Event channel'})}:</b> ${data.eventChannel}` : ''}
 
-<b>${translateText({language, text: 'Event details'})}:</b> <a href="${data.eventLink}">Link</a>
+<b>${translateText({language, text: 'Event details'})}:</b> <a href="${data.eventLink}">${data.eventLink}</a>
 
 <b>${translateText({language, text: 'Source'})}:</b> ${urlList}`);
 }
